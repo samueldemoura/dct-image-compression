@@ -1,6 +1,7 @@
 from numpy import zeros, array, clip, trunc
 from math import pi, cos, sqrt
 from cv2 import imread, imwrite, imshow, waitKey, destroyAllWindows, cvtColor, COLOR_BGR2RGB
+import sys
 import matplotlib.pyplot as plt
 cos_backup = array([])
 def cos_values(N):
@@ -52,9 +53,38 @@ def inverse_dct_image(img):
             img[:,:,i] = inverse_dct_2d(img[:,:,i])
     else:
         img[:, :, 0] = inverse_dct_2d(img[:, :,0])
+    return img.clip(0, 255)
+def remove_coeficients_from_image(img, keep):
+    img[keep:, :, :] = 0
+    img[:, keep:, :] = 0
     return img
 
+
 if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print('Usage: python3 dctopt.py [IMAGE FILE] [NUMBER OF COEFICIENTS TO KEEP]')
+        quit()
+
+    rows = 1
+    columns = 4
+
+    fig = plt.figure()
+
+    img = imread(sys.argv[1])
+    img = img.astype('float64')
+    fig.add_subplot(rows,columns,1)
+    plt.imshow(cvtColor(img.astype('uint8'), COLOR_BGR2RGB))
+    fig.add_subplot(rows, columns, 2)
+    x = direct_dct_image(img.copy())
+    plt.imshow(cvtColor(x.astype('uint8'), COLOR_BGR2RGB))
+    fig.add_subplot(rows, columns, 3)
+    y = remove_coeficients_from_image(x.copy(), int(sys.argv[2]))
+    plt.imshow(cvtColor(y.astype('uint8'), COLOR_BGR2RGB))
+    fig.add_subplot(rows, columns, 4)
+    plt.imshow(cvtColor(inverse_dct_image(y).astype('uint8'), COLOR_BGR2RGB))
+    
+    plt.show()
+
     #TEST 1
     # rows = 1
     # columns = 3

@@ -1,4 +1,5 @@
 from numpy import zeros, array, clip, trunc
+import numpy as np
 from math import pi, cos, sqrt
 from cv2 import imread, imwrite, imshow, waitKey, destroyAllWindows, cvtColor, COLOR_BGR2RGB
 import sys
@@ -55,9 +56,10 @@ def inverse_dct_image(img):
         img[:, :, 0] = inverse_dct_2d(img[:, :,0])
     return img.clip(0, 255)
 def remove_coeficients_from_image(img, keep):
-    img[keep:, :, :] = 0
-    img[:, keep:, :] = 0
-    return img
+	img_copy = np.sort(img.copy(), axis=None)
+	cutoff_threshold = img_copy[-(keep+1)]
+	img[img < cutoff_threshold] = 0
+	return img
 
 
 if __name__ == '__main__':

@@ -56,10 +56,18 @@ def inverse_dct_image(img):
         img[:, :, 0] = inverse_dct_2d(img[:, :,0])
     return img.clip(0, 255)
 def remove_coeficients_from_image(img, keep):
-	img_copy = np.sort(img.copy(), axis=None)
-	cutoff_threshold = img_copy[-(keep+1)]
-	img[img < cutoff_threshold] = 0
-	return img
+
+    img_new = np.zeros(img.shape)
+
+    for i in range(keep * 3): # * 3, because 3 color channels
+        index = np.unravel_index(np.absolute(img).argmax(), img.shape)
+        img_new[index] = img[index] # copy it over to new image
+        img[index] = 0 # remove from original so we don't count it again
+        
+    # previous method: lowpass filter
+    #img[keep:, :, :] = 0
+    #img[:, keep:, :] = 0
+    return img_new
 
 
 if __name__ == '__main__':
